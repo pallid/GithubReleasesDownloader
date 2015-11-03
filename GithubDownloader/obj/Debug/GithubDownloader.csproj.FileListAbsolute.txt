@@ -1,0 +1,8 @@
+d:\mw_git\GithubDownloader\GithubDownloader\bin\Debug\GithubDownloader.exe.config
+d:\mw_git\GithubDownloader\GithubDownloader\bin\Debug\GithubDownloader.exe
+d:\mw_git\GithubDownloader\GithubDownloader\bin\Debug\GithubDownloader.pdb
+d:\mw_git\GithubDownloader\GithubDownloader\obj\Debug\GithubDownloader.csprojResolveAssemblyReference.cache
+d:\mw_git\GithubDownloader\GithubDownloader\obj\Debug\GithubDownloader.exe
+d:\mw_git\GithubDownloader\GithubDownloader\obj\Debug\GithubDownloader.pdb
+D:\mw_git\GithubDownloader\GithubDownloader\bin\Debug\Newtonsoft.Json.dll
+D:\mw_git\GithubDownloader\GithubDownloader\bin\Debug\Newtonsoft.Json.xml
