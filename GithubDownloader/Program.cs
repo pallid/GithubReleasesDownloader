@@ -21,27 +21,44 @@ namespace GithubDownloader
 
         private static bool SetDataFromArgs(string[] args)
         {
-            if(args.Length < 4)
+            if(args.Length < 3)
             {
                 ShowUsage();
                 return false;
             }
 
-            _baseUri = "https://api.github.com";
-            _user = args[0];
-            _repo = args[1];
-            _token = args[2];
-            _token = args[3];
+
+            var uri = new Uri(args[0]);
+
+            _baseUri = GetBaseUri(uri);
+            _user = GetUserFromUri(uri);
+            _repo = GetRepoFromUri(uri);
+            _token = args[1];
+            _userAgent = args[2];
 
             return true;
         }
 
+        private static string GetUserFromUri(Uri uri)
+        {
+            return !uri.LocalPath.Contains("/") ? string.Empty : uri.Segments[1].TrimEnd('/');
+        }
+
+        private static string GetRepoFromUri(Uri uri)
+        {
+            return !uri.LocalPath.Contains("/") ? string.Empty : uri.Segments[2].TrimEnd('/');
+        }
+
+        private static string GetBaseUri(Uri uri)
+        {
+            return uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase) ? "https://api.github.com" : $"{uri.Scheme}://{uri.Host}/api/v3";
+        }
+
         private static void ShowUsage()
         {
-            Console.WriteLine("{0} {1} {2} {3} {4}",
+            Console.WriteLine("{0} {1} {2} {3}",
                 Assembly.GetExecutingAssembly().GetName().Name,
-                "RepoOwner",
-                "RepoName",
+                "RepoUri",
                 "GithubToken",
                 "UserAgentString"
                 );
