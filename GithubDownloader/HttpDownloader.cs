@@ -27,21 +27,23 @@ namespace GithubDownloader
             _releaseUri = GetReleaseUri();
         }
 
-        internal string DownloadReleases()
+        public string DownloadReleases()
         {
             var requestingUri = GetAccessTokenUri(_releaseUri);
-            Console.WriteLine(requestingUri);
             var request = (HttpWebRequest) WebRequest.Create(new Uri(requestingUri));
             request.UserAgent = _userAgent;
 
             var response = request.GetResponse();
             Console.WriteLine(((HttpWebResponse) response).StatusDescription);
-            // Get the stream containing content returned by the server.
 
+            // Get the stream containing content returned by the server.
 
            var responseFromServer = ReadResponseFromServer(response);
             // Clean up the streams and the response.
             response.Close();
+
+            Console.WriteLine(responseFromServer);
+
             return responseFromServer;
         }
 
@@ -78,8 +80,6 @@ namespace GithubDownloader
         public bool DownloadAsset(string id, string path)
         {
             var assetUri = GetAccessTokenUri(GetAssetsUriForId(id));
-
-            Console.WriteLine(assetUri);
 
             var request = (HttpWebRequest)WebRequest.Create(new Uri(assetUri));
             request.Accept = "application/octet-stream";

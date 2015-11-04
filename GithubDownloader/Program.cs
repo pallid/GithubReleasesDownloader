@@ -74,8 +74,6 @@ namespace GithubDownloader
 
             var fullUrl = $"{_baseUri}/repos/{_user}/{_repo}";
 
-            Console.WriteLine(fullUrl);
-
             var githubDownloader = new GithubDownloader(fullUrl, _token, _userAgent);
 
             var response = githubDownloader.DownloadReleases();
@@ -89,7 +87,6 @@ namespace GithubDownloader
             foreach (var release in releases)
             {
                 var releaseName = $"{release.tag_name}";
-                Console.WriteLine(releaseName);
 
                 var releasePath = $"releases\\{_user}\\{_repo}\\{releaseName}";
 
@@ -99,7 +96,6 @@ namespace GithubDownloader
 
                 foreach (var asset in release.assets)
                 {
-                    Console.WriteLine("\t{0} - {1}", asset.id, asset.name);
                     var assetDl = githubDownloader.DownloadAsset(asset.id, releasePath + "\\" + asset.name);
                 }
             }
