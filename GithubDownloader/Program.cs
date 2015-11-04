@@ -88,7 +88,7 @@ namespace GithubDownloader
             */
             foreach (var release in releases)
             {
-                var releaseName = $"{release.id}-{release.name}-{release.tag_name}";
+                var releaseName = $"{release.tag_name}";
                 Console.WriteLine(releaseName);
 
                 var releasePath = $"releases\\{_user}\\{_repo}\\{releaseName}";
