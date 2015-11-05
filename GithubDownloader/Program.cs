@@ -76,9 +76,8 @@ namespace GithubDownloader
 
             var githubDownloader = new GithubDownloader(fullUrl, _token, _userAgent);
 
-            var response = githubDownloader.DownloadReleases("");
+            var releases = githubDownloader.GetDataForAllReleases();
 
-            var releases = JsonConvert.DeserializeObject<ICollection<GithubRelease>>(response);
 
 /*
             var json = JArray.Parse(response);
@@ -90,13 +89,18 @@ namespace GithubDownloader
 
                 var releasePath = $"releases\\{_user}\\{_repo}\\{releaseName}";
 
+                Console.WriteLine("Release: {0}", release.tag_name);
+
                 CheckAndCreateFolder(releasePath);
 
                 SaveReleaseComments(release.body, releasePath);
 
                 foreach (var asset in release.assets)
                 {
-                    var assetDl = githubDownloader.DownloadAsset(asset.id, releasePath + "\\" + asset.name);
+                    var assetPath = releasePath + "\\" + asset.name;
+
+                    Console.WriteLine("\tAsset: {0} - {1}", asset.id, assetPath);
+                    var assetDl = githubDownloader.DownloadAsset(asset.id, assetPath);
                 }
             }
 

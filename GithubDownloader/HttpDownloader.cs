@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace GithubDownloader
 {
@@ -30,27 +31,38 @@ namespace GithubDownloader
         public ICollection<GithubRelease> GetDataForAllReleases()
         {
             var requestingUri = GetAccessTokenUri(_releaseUri);
-            DownloadReleases(requestingUri);
-            return new List<GithubRelease>();
+            return DownloadReleases(requestingUri);
         }
 
-        public string DownloadReleases(string requestingUri)
+        public ICollection<GithubRelease> DownloadReleases(string requestingUri)
         {
+
+            Console.WriteLine("Requesting: {0}", requestingUri);
             var request = (HttpWebRequest) WebRequest.Create(new Uri(requestingUri));
             request.UserAgent = _userAgent;
 
             var response = request.GetResponse();
             Console.WriteLine(((HttpWebResponse) response).StatusDescription);
-
             // Get the stream containing content returned by the server.
 
-           var responseFromServer = ReadResponseFromServer(response);
+            var responseFromServer = ReadResponseFromServer(response);
+            
+            var releases = JsonConvert.DeserializeObject<List<GithubRelease>>(responseFromServer);
+
+            var parser = new LinkHeaderParser();
+
+            var linkHeader = response.Headers["Link"];
+
+            var nextUrl = parser.GetNextPageFromHeader(linkHeader);
+
+            if (!string.IsNullOrEmpty(nextUrl))
+            {
+                releases.AddRange(DownloadReleases(nextUrl));
+            }
+
             // Clean up the streams and the response.
             response.Close();
-
-            Console.WriteLine(responseFromServer);
-
-            return responseFromServer;
+            return releases;
         }
 
         private string GetReleaseUri()
