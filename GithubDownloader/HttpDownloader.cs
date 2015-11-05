@@ -27,9 +27,15 @@ namespace GithubDownloader
             _releaseUri = GetReleaseUri();
         }
 
-        public string DownloadReleases()
+        public ICollection<GithubRelease> GetDataForAllReleases()
         {
             var requestingUri = GetAccessTokenUri(_releaseUri);
+            DownloadReleases(requestingUri);
+            return new List<GithubRelease>();
+        }
+
+        public string DownloadReleases(string requestingUri)
+        {
             var request = (HttpWebRequest) WebRequest.Create(new Uri(requestingUri));
             request.UserAgent = _userAgent;
 

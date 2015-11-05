@@ -76,7 +76,7 @@ namespace GithubDownloader
 
             var githubDownloader = new GithubDownloader(fullUrl, _token, _userAgent);
 
-            var response = githubDownloader.DownloadReleases();
+            var response = githubDownloader.DownloadReleases("");
 
             var releases = JsonConvert.DeserializeObject<ICollection<GithubRelease>>(response);
 
