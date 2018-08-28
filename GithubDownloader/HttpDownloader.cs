@@ -14,15 +14,18 @@ namespace GithubDownloader
     {
         private readonly string _baseUri;
 
+        private readonly string _release;
+
         private readonly string _accessToken;
 
         private readonly string _userAgent;
 
         private readonly string _releaseUri;
 
-        public GithubDownloader(string baseUri, string accessToken, string userAgent)
+        public GithubDownloader(string baseUri, string accessToken, string userAgent, string release = null)
         {
             _baseUri = baseUri;
+            _release = release;
             _accessToken = accessToken;
             _userAgent = userAgent;
             _releaseUri = GetReleaseUri();
@@ -32,6 +35,13 @@ namespace GithubDownloader
         {
             var requestingUri = GetAccessTokenUri(_releaseUri);
             return DownloadReleases(requestingUri);
+        }
+
+        public GithubRelease GetDataForRelease()
+        {
+            var requestingUri = GetTagOrReleaseUri(_releaseUri);
+            requestingUri = GetAccessTokenUri(requestingUri);
+            return DownloadRelease(requestingUri);
         }
 
         public ICollection<GithubRelease> DownloadReleases(string requestingUri)
@@ -65,6 +75,26 @@ namespace GithubDownloader
             return releases;
         }
 
+        public GithubRelease DownloadRelease(string requestingUri)
+        {
+
+            Console.WriteLine("Requesting: {0}", requestingUri);
+            var request = (HttpWebRequest)WebRequest.Create(new Uri(requestingUri));
+            request.UserAgent = _userAgent;
+
+            var response = request.GetResponse();
+            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            // Get the stream containing content returned by the server.
+
+            var responseFromServer = ReadResponseFromServer(response);
+
+            GithubRelease release = JsonConvert.DeserializeObject<GithubRelease>(responseFromServer);
+ 
+            // Clean up the streams and the response.
+            response.Close();
+            return release;
+        }
+
         private string GetReleaseUri()
         {
             var releaseUri = $"{_baseUri}/releases";
@@ -88,6 +118,22 @@ namespace GithubDownloader
         {
             var assetUri = $"{_releaseUri}/assets/{id}";
             return assetUri;
+        }
+
+        private string GetTagOrReleaseUri(string uri)
+        {
+            string _uri = uri;
+
+            if (_release == "latest")
+            {
+                _uri += $"/latest";
+            }
+            else
+            {
+                _uri += $"/tags/{_release}";
+            }
+
+            return _uri;
         }
 
         private string GetAccessTokenUri(string uri)

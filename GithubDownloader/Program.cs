@@ -16,6 +16,7 @@ namespace GithubDownloader
         private static string _baseUri;
         private static string _user;
         private static string _repo;
+        private static string _release;
         private static string _token;
         private static string _userAgent;
 
@@ -33,10 +34,27 @@ namespace GithubDownloader
             _baseUri = GetBaseUri(uri);
             _user = GetUserFromUri(uri);
             _repo = GetRepoFromUri(uri);
+            _release = GetReleaseFromUri(uri); ;
             _token = args[1];
             _userAgent = args[2];
+            
 
             return true;
+        }
+
+        private static string GetReleaseFromUri(Uri uri)
+        {
+            string rel = "latest";
+
+            if (uri.LocalPath.Contains(":"))
+            {
+                string trimmed = uri.LocalPath.Trim();
+                rel = trimmed.Substring(trimmed.IndexOf(':') + 1);
+            }
+
+            Console.WriteLine("{0} {1}", "get release:", rel);
+
+            return rel;
         }
 
         private static string GetUserFromUri(Uri uri)
@@ -46,7 +64,19 @@ namespace GithubDownloader
 
         private static string GetRepoFromUri(Uri uri)
         {
-            return !uri.LocalPath.Contains("/") ? string.Empty : uri.Segments[2].TrimEnd('/');
+            //return !uri.LocalPath.Contains("/") ? string.Empty : uri.Segments[2].TrimEnd('/');
+
+            string repo = string.Empty;
+
+            if (uri.LocalPath.Contains("/"))
+            {
+                var str = uri.Segments[2].TrimEnd('/');
+                repo = !uri.LocalPath.Contains(":") ? str : str.Substring(0, str.IndexOf(':'));
+            }
+
+            Console.WriteLine("{0} {1}", "get repo:", repo);
+
+            return repo;
         }
 
         private static string GetBaseUri(Uri uri)
@@ -74,17 +104,17 @@ namespace GithubDownloader
 
             var fullUrl = $"{_baseUri}/repos/{_user}/{_repo}";
 
-            var githubDownloader = new GithubDownloader(fullUrl, _token, _userAgent);
+            var githubDownloader = new GithubDownloader(fullUrl, _token, _userAgent, _release);
 
-            var releases = githubDownloader.GetDataForAllReleases();
+            var release = githubDownloader.GetDataForRelease();
 
 
 /*
             var json = JArray.Parse(response);
 
             */
-            foreach (var release in releases)
-            {
+            //foreach (var release in releases)
+            //{
                 var releaseName = $"{release.tag_name}";
 
                 var releasePath = $"releases\\{_user}\\{_repo}\\{releaseName}";
@@ -102,7 +132,7 @@ namespace GithubDownloader
                     Console.WriteLine("\tAsset: {0} - {1}", asset.id, assetPath);
                     var assetDl = githubDownloader.DownloadAsset(asset.id, assetPath);
                 }
-            }
+            //}
 
 
             //Console.WriteLine(json);
